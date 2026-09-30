@@ -106,9 +106,11 @@ export const site = {
         { label: 'Handover', duration: '1 week' }
       ],
       result: '+28m² of living space across two storeys, including a fifth bedroom.',
-      // Stylized diagram position (percent of the coverage panel), not lat/lng —
-      // see CoverageMap.jsx for the "illustration, not a real map" framing.
-      coords: { x: 38, y: 42 }
+      // Approximate town centroid — matches the precision of `location`/`county`
+      // (town-level only, no street address is ever stored here). A small
+      // deterministic offset is applied at render time (see utils/geoJitter.js)
+      // purely so same-town pins don't stack before zooming in.
+      coords: { lat: 51.4886, lng: -0.8686 }
     },
     {
       slug: 'oakfield-loft-conversion',
@@ -138,7 +140,7 @@ export const site = {
         { label: 'Handover', duration: '1 week' }
       ],
       result: '+2 bedrooms and an en suite, added within the existing roofline.',
-      coords: { x: 58, y: 68 }
+      coords: { lat: 51.4718, lng: -0.9679 }
     },
     {
       slug: 'the-beechwood-house',
@@ -168,7 +170,7 @@ export const site = {
         { label: 'Handover', duration: '2 weeks' }
       ],
       result: '1,850 sq ft four-bedroom home delivered on a fixed price and programme.',
-      coords: { x: 62, y: 30 }
+      coords: { lat: 51.5237, lng: -0.9179 }
     },
     {
       slug: 'mill-lane-garage-conversion',
@@ -198,7 +200,7 @@ export const site = {
         { label: 'Handover', duration: '1 week' }
       ],
       result: '18m² reclaimed as a fully insulated, heated home office.',
-      coords: { x: 18, y: 22 }
+      coords: { lat: 51.5360, lng: -0.9026 }
     }
   ]
 }
