@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { IconCheck } from './icons'
 
 const PROJECT_TYPES = ['Extension', 'Conversion', 'New Build', 'Design only']
 
@@ -11,7 +13,8 @@ const EMPTY_FORM = {
   phone: '',
   projectType: '',
   postcode: '',
-  message: ''
+  message: '',
+  consent: false
 }
 
 function validate(form) {
@@ -32,6 +35,9 @@ function validate(form) {
   if (!UK_POSTCODE_RE.test(form.postcode.trim())) {
     errors.postcode = 'Enter a valid UK postcode.'
   }
+  if (!form.consent) {
+    errors.consent = 'You must agree to the Privacy Policy to continue.'
+  }
 
   return errors
 }
@@ -44,6 +50,10 @@ export default function QuoteForm() {
 
   const handleChange = (field) => (e) => {
     setForm((f) => ({ ...f, [field]: e.target.value }))
+  }
+
+  const handleConsentChange = (e) => {
+    setForm((f) => ({ ...f, consent: e.target.checked }))
   }
 
   const handleSubmit = async (e) => {
@@ -200,6 +210,35 @@ export default function QuoteForm() {
             rows={4}
           />
         </div>
+      </div>
+
+      <div className={`consent-field${errors.consent ? ' consent-field--error' : ''}`}>
+        <label className="consent-field__label" htmlFor="consent">
+          <input
+            id="consent"
+            type="checkbox"
+            className="consent-field__input"
+            checked={form.consent}
+            onChange={handleConsentChange}
+            aria-invalid={Boolean(errors.consent)}
+            aria-describedby={errors.consent ? 'consent-error' : undefined}
+          />
+          <span className="consent-field__box" aria-hidden="true">
+            <IconCheck className="consent-field__check" />
+          </span>
+          <span className="consent-field__text">
+            I have read and agree to the{' '}
+            <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer">
+              Privacy Policy
+            </Link>
+            .
+          </span>
+        </label>
+        {errors.consent && (
+          <span className="field__error" id="consent-error">
+            {errors.consent}
+          </span>
+        )}
       </div>
 
       <div className="quote-form__submit">

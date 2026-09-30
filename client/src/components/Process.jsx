@@ -23,7 +23,7 @@ export default function Process() {
   return (
     <section className="section section--light" id="process">
       <div className="container">
-        <span className="section-label">SEC.04 / HOW IT WORKS</span>
+        <span className="section-label">SEC.05 / HOW IT WORKS</span>
         <h2>The process</h2>
         <p className="lede">Four stages. One team, start to finish.</p>
 

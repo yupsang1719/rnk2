@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { site } from '../siteConfig'
 import StatCounter from './StatCounter'
 import { IconArrow, IconCheck } from './icons'
+import { hidePhotoOnError } from '../utils/imageFallback'
 
 const STATS = [
   { value: site.stats.yearsEstablished, label: 'Years established' },
@@ -15,10 +16,6 @@ const QUOTE_POINTS = [
   'Fixed-price written quote',
   'Answer within one working day'
 ]
-
-function hidePhoto(e) {
-  e.currentTarget.style.display = 'none'
-}
 
 export default function Hero() {
   const heroRef = useRef(null)
@@ -45,7 +42,7 @@ export default function Hero() {
 
   return (
     <section className="hero" id="top" ref={heroRef}>
-      <img className="hero__photo" src={site.hero.image} alt="" onError={hidePhoto} />
+      <img className="hero__photo" src={site.hero.image} alt="" onError={hidePhotoOnError} />
       <div className="hero__scrim" aria-hidden="true" />
       <div className="hero__tick" aria-hidden="true" />
 

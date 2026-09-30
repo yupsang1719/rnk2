@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { site } from '../siteConfig'
 
 export default function Footer() {
@@ -35,7 +36,10 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <span>© {year} RNK2 Properties Ltd. All rights reserved.</span>
+          <div className="footer-bottom__legal">
+            <span>© {year} RNK2 Properties Ltd. All rights reserved.</span>
+            <Link to="/privacy-policy">Privacy Policy</Link>
+          </div>
           <span className="placeholder-note">
             [ALL FIGURES &amp; CONTACT DETAILS ON THIS SITE ARE PLACEHOLDERS — SEE src/siteConfig.js]
           </span>

@@ -98,3 +98,28 @@ export function IconSetSquare(props) {
     </svg>
   )
 }
+
+export function IconClose(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M6 6l12 12M18 6 6 18" />
+    </svg>
+  )
+}
+
+export function IconChevron(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M9 5l7 7-7 7" />
+    </svg>
+  )
+}
+
+export function IconPin(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 21s7-7.6 7-12a7 7 0 0 0-14 0c0 4.4 7 12 7 12Z" />
+      <circle cx="12" cy="9" r="2.5" />
+    </svg>
+  )
+}

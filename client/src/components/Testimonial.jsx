@@ -4,7 +4,7 @@ export default function Testimonial() {
   return (
     <section className="section section--mist">
       <div className="container">
-        <span className="section-label">SEC.05 / IN THEIR WORDS</span>
+        <span className="section-label">SEC.06 / IN THEIR WORDS</span>
         <blockquote className="testimonial">
           <p className="testimonial__quote">{site.testimonial.quote}</p>
           <footer className="testimonial__attribution">

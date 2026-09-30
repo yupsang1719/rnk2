@@ -14,7 +14,7 @@ export default function TrackRecord() {
       <div className="grain-overlay" aria-hidden="true" />
       <div className="container">
         <span className="section-label" style={{ color: 'rgba(220,234,244,0.55)' }}>
-          SEC.03 / TRACK RECORD
+          SEC.04 / TRACK RECORD
         </span>
         <h2>Built on delivery</h2>
 

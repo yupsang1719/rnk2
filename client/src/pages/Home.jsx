@@ -1,6 +1,7 @@
 import Hero from '../components/Hero'
 import Capabilities from '../components/Capabilities'
 import Work from '../components/Work'
+import CoverageMap from '../components/CoverageMap'
 import DividerBand from '../components/DividerBand'
 import TrackRecord from '../components/TrackRecord'
 import Process from '../components/Process'
@@ -13,6 +14,7 @@ export default function Home() {
       <Hero />
       <Capabilities />
       <Work />
+      <CoverageMap />
       <DividerBand />
       <TrackRecord />
       <Process />
