@@ -1,0 +1,23 @@
+import Hero from '../components/Hero'
+import Capabilities from '../components/Capabilities'
+import Work from '../components/Work'
+import DividerBand from '../components/DividerBand'
+import TrackRecord from '../components/TrackRecord'
+import Process from '../components/Process'
+import Testimonial from '../components/Testimonial'
+import QuoteCTA from '../components/QuoteCTA'
+
+export default function Home() {
+  return (
+    <>
+      <Hero />
+      <Capabilities />
+      <Work />
+      <DividerBand />
+      <TrackRecord />
+      <Process />
+      <Testimonial />
+      <QuoteCTA />
+    </>
+  )
+}
