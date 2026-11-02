@@ -18,7 +18,10 @@ export default [
         IntersectionObserver: 'readonly',
         requestAnimationFrame: 'readonly',
         cancelAnimationFrame: 'readonly',
-        performance: 'readonly'
+        performance: 'readonly',
+        createImageBitmap: 'readonly',
+        File: 'readonly',
+        FormData: 'readonly'
       }
     },
     plugins: { react, 'react-hooks': reactHooks },

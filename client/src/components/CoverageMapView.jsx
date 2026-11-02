@@ -5,7 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { Protocol } from 'pmtiles'
 import { namedFlavor, layers } from '@protomaps/basemaps'
-import { site } from '../siteConfig'
+import { useSiteData } from '../SiteData'
 import { buildWorkFeatureCollection } from '../utils/workGeoJson'
 import { getMapThemeOverrides } from '../utils/mapTheme'
 
@@ -21,9 +21,21 @@ addProtocol('pmtiles', protocol.tile)
 
 const CLUSTER_MAX_ZOOM = 12
 
+function popupContent(title, county) {
+  const wrap = document.createElement('div')
+  const strong = document.createElement('strong')
+  strong.textContent = title || ''
+  wrap.append(strong)
+  if (county) {
+    wrap.append(document.createElement('br'), document.createTextNode(county))
+  }
+  return wrap
+}
+
 export default function CoverageMapView() {
   const containerRef = useRef(null)
   const navigate = useNavigate()
+  const { projects, settings } = useSiteData()
 
   useEffect(() => {
     const container = containerRef.current
@@ -44,7 +56,7 @@ export default function CoverageMapView() {
         },
         work: {
           type: 'geojson',
-          data: buildWorkFeatureCollection(site.work),
+          data: buildWorkFeatureCollection(projects.filter((p) => p.coords)),
           cluster: true,
           clusterMaxZoom: CLUSTER_MAX_ZOOM,
           clusterRadius: 50
@@ -103,6 +115,22 @@ export default function CoverageMapView() {
 
     map.addControl(new NavigationControl({ showCompass: false }), 'top-right')
 
+    // Frame whatever projects have been published, rather than a fixed view.
+    const pins = projects.filter((p) => p.coords)
+    if (pins.length > 1) {
+      const lngs = pins.map((p) => p.coords.lng)
+      const lats = pins.map((p) => p.coords.lat)
+      map.fitBounds(
+        [
+          [Math.min(...lngs), Math.min(...lats)],
+          [Math.max(...lngs), Math.max(...lats)]
+        ],
+        { padding: 60, maxZoom: 11, duration: 0 }
+      )
+    } else if (pins.length === 1) {
+      map.jumpTo({ center: [pins[0].coords.lng, pins[0].coords.lat], zoom: 10 })
+    }
+
     let popup = null
 
     const handleClusterClick = async (e) => {
@@ -131,9 +159,8 @@ export default function CoverageMapView() {
 
       popup = new Popup({ closeButton: false, closeOnClick: false })
         .setLngLat(feature.geometry.coordinates)
-        .setHTML(
-          `<strong>${feature.properties.title}</strong><br />${feature.properties.county}`
-        )
+        // Built with DOM nodes, not HTML strings — titles come from the CMS.
+        .setDOMContent(popupContent(feature.properties.title, feature.properties.county))
         .addTo(map)
     }
 
@@ -162,14 +189,16 @@ export default function CoverageMapView() {
       popup?.remove()
       map.remove()
     }
-  }, [navigate])
+  }, [navigate, projects])
 
   return (
     <div
       className="coverage-map"
       ref={containerRef}
       role="img"
-      aria-label={`Map of recent projects across ${site.company.areasCovered}`}
+      aria-label={
+        settings.areasCovered ? `Map of recent projects across ${settings.areasCovered}` : 'Map of recent projects'
+      }
     />
   )
 }

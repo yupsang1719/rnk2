@@ -7,7 +7,7 @@ export default function ProjectGallery({ images, title }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
-  const activeImage = images[activeIndex]
+  const activeImage = images[activeIndex] || images[0]
 
   return (
     <div className="project-gallery">
@@ -31,10 +31,11 @@ export default function ProjectGallery({ images, title }) {
               type="button"
               role="tab"
               aria-selected={i === activeIndex}
+              aria-label={image.alt || `Photo ${i + 1}`}
               className={`project-gallery__thumb${i === activeIndex ? ' is-active' : ''}`}
               onClick={() => setActiveIndex(i)}
             >
-              <img src={image.src} alt="" onError={hidePhotoOnError} />
+              <img src={image.thumb || image.src} alt="" onError={hidePhotoOnError} loading="lazy" />
             </button>
           ))}
         </div>

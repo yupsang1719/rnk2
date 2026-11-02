@@ -1,6 +1,10 @@
 import { site } from '../siteConfig'
+import { useSiteData } from '../SiteData'
 
 export default function PrivacyPolicy() {
+  const { settings } = useSiteData()
+  const contactEmail = settings.privacyEmail || settings.email
+
   return (
     <section className="section section--light">
       <div className="container">
@@ -15,10 +19,15 @@ export default function PrivacyPolicy() {
           <li>
             <h2 className="section-label">01 / WHO WE ARE</h2>
             <p className="project-copy">
-              RNK2 Properties Ltd, company registration no. {site.company.registrationNo},
-              of {site.contact.addressLine}, is the data controller for the personal data
-              described in this policy. You can reach us at{' '}
-              <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>.
+              RNK2 Properties Ltd
+              {settings.registrationNo && `, company registration no. ${settings.registrationNo}`}
+              {settings.address && `, of ${settings.address}`}, is the data controller for the
+              personal data described in this policy.
+              {settings.email && (
+                <>
+                  {' '}You can reach us at <a href={`mailto:${settings.email}`}>{settings.email}</a>.
+                </>
+              )}
             </p>
           </li>
 
@@ -82,7 +91,9 @@ export default function PrivacyPolicy() {
           <li>
             <h2 className="section-label">07 / COOKIES</h2>
             <p className="project-copy">
-              This site does not currently use cookies or analytics. If that changes, this
+              This site does not use analytics or advertising cookies. The only cookie it sets
+              is a strictly necessary sign-in cookie for our own staff when they use the
+              website&apos;s admin area; visitors are never given one. If that changes, this
               policy will be updated first.
             </p>
           </li>
@@ -90,10 +101,14 @@ export default function PrivacyPolicy() {
           <li>
             <h2 className="section-label">08 / CONTACT US &amp; COMPLAINTS</h2>
             <p className="project-copy">
-              For data requests, contact{' '}
-              <a href={`mailto:${site.legal.privacyEmail}`}>{site.legal.privacyEmail}</a>.
-              Our ICO registration number is {site.legal.icoRegistrationNo}. You can also
-              complain to the Information Commissioner&apos;s Office at ico.org.uk.
+              {contactEmail && (
+                <>
+                  For data requests, contact <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.{' '}
+                </>
+              )}
+              {settings.icoRegistrationNo &&
+                `Our ICO registration number is ${settings.icoRegistrationNo}. `}
+              You can also complain to the Information Commissioner&apos;s Office at ico.org.uk.
             </p>
           </li>
         </ol>

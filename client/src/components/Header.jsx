@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { IconArrow, IconSetSquare } from './icons'
+import { useSiteData } from '../SiteData'
 
 const NAV_LINKS = [
   { href: '/#capabilities', label: 'Capabilities' },
@@ -11,6 +12,8 @@ const NAV_LINKS = [
 export default function Header() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { projects } = useSiteData()
+  const links = NAV_LINKS.filter((link) => link.href !== '/#work' || projects.length > 0)
 
   const closeMenu = () => setOpen(false)
 
@@ -31,7 +34,7 @@ export default function Header() {
 
         <nav className="site-nav" aria-label="Primary">
           <ul className="site-nav__links">
-            {NAV_LINKS.map((link) => (
+            {links.map((link) => (
               <li key={link.href}>
                 <Link to={link.href}>{link.label}</Link>
               </li>
@@ -66,7 +69,7 @@ export default function Header() {
         className={`mobile-menu ${open ? 'is-open' : ''}`}
         aria-label="Mobile"
       >
-        {NAV_LINKS.map((link) => (
+        {links.map((link) => (
           <Link key={link.href} to={link.href} onClick={closeMenu}>
             {link.label}
           </Link>

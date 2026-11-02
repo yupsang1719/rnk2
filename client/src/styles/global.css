@@ -1921,3 +1921,16 @@ h3 {
 @media (prefers-reduced-motion: no-preference) {
   .scroll-progress__bar { transition: width 0.1s linear; }
 }
+
+/* ---- 404 ---- */
+.not-found { min-height: 60vh; }
+.not-found__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  line-height: 1;
+  margin: 12px 0 16px;
+}
+.not-found__cta { margin-top: 28px; }
+
+/* Placeholder height while project content loads, so the footer doesn't jump. */
+.project-hero--loading { min-height: 60vh; }

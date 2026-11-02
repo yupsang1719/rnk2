@@ -8,7 +8,7 @@ const UK_POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i
 
 function validateQuote(body) {
   const errors = {}
-  const { name, email, phone, projectType, postcode, message } = body
+  const { name, email, phone, projectType, postcode, message, consent } = body
 
   if (!name || typeof name !== 'string' || name.trim().length < 2) {
     errors.name = 'Enter your full name.'
@@ -28,6 +28,9 @@ function validateQuote(body) {
   if (message && typeof message === 'string' && message.length > 2000) {
     errors.message = 'Message is too long.'
   }
+  if (consent !== true) {
+    errors.consent = 'You must agree to the Privacy Policy to continue.'
+  }
 
   return errors
 }
@@ -40,14 +43,16 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    const { name, email, phone, projectType, postcode, message } = req.body
+    const { name, email, phone, projectType, postcode, message, consent } = req.body
     const quote = await Quote.create({
       name: name.trim(),
       email: email.trim(),
       phone: phone.trim(),
       projectType,
       postcode: postcode.trim(),
-      message: (message || '').trim()
+      message: (message || '').trim(),
+      consent: consent === true,
+      consentAt: new Date()
     })
 
     return res.status(201).json({

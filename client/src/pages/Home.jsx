@@ -7,14 +7,18 @@ import TrackRecord from '../components/TrackRecord'
 import Process from '../components/Process'
 import Testimonial from '../components/Testimonial'
 import QuoteCTA from '../components/QuoteCTA'
+import { useSiteData } from '../SiteData'
 
 export default function Home() {
+  const { projects } = useSiteData()
+  const mappable = projects.filter((p) => p.coords)
+
   return (
     <>
       <Hero />
       <Capabilities />
-      <Work />
-      <CoverageMap />
+      {projects.length > 0 && <Work />}
+      {mappable.length > 0 && <CoverageMap />}
       <DividerBand />
       <TrackRecord />
       <Process />

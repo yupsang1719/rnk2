@@ -42,6 +42,18 @@ const quoteSchema = new mongoose.Schema({
     maxlength: 2000,
     default: ''
   },
+  consent: {
+    type: Boolean,
+    required: true,
+    validate: {
+      validator: (v) => v === true,
+      message: 'Consent to the Privacy Policy is required.'
+    }
+  },
+  consentAt: {
+    type: Date,
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now

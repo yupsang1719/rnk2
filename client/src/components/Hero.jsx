@@ -1,15 +1,18 @@
 import { useEffect, useRef } from 'react'
 import { site } from '../siteConfig'
+import { useSiteData, yearsSince } from '../SiteData'
 import StatCounter from './StatCounter'
 import { IconArrow, IconCheck } from './icons'
 import { hidePhotoOnError } from '../utils/imageFallback'
 
-const STATS = [
-  { value: site.stats.yearsEstablished, label: 'Years established' },
-  { value: site.stats.projectsCompleted, label: 'Projects completed' },
-  { value: `${site.stats.guaranteeYears} YR`, label: 'Structural guarantee' },
-  { value: site.stats.onTimePercent, label: 'Delivered on time' }
-]
+function buildStats(s) {
+  return [
+    { value: yearsSince(s.establishedYear), label: 'Years established' },
+    { value: s.projectsCompleted, label: 'Projects completed' },
+    { value: s.guaranteeYears ? `${s.guaranteeYears} YR` : '', label: 'Structural guarantee' },
+    { value: s.onTimePercent, label: 'Delivered on time' }
+  ].filter((stat) => stat.value)
+}
 
 const QUOTE_POINTS = [
   'No-obligation site visit',
@@ -19,6 +22,15 @@ const QUOTE_POINTS = [
 
 export default function Hero() {
   const heroRef = useRef(null)
+  const { settings, projects } = useSiteData()
+  const stats = buildStats(settings)
+  const eyebrow = [
+    'RESIDENTIAL BUILDER',
+    settings.region && settings.region.toUpperCase(),
+    settings.establishedYear && `EST. ${settings.establishedYear}`
+  ]
+    .filter(Boolean)
+    .join(' — ')
 
   useEffect(() => {
     const node = heroRef.current
@@ -42,7 +54,7 @@ export default function Hero() {
 
   return (
     <section className="hero" id="top" ref={heroRef}>
-      <img className="hero__photo" src={site.hero.image} alt="" onError={hidePhotoOnError} />
+      <img className="hero__photo" src={settings.heroImage || site.defaultHeroImage} alt="" onError={hidePhotoOnError} />
       <div className="hero__scrim" aria-hidden="true" />
       <div className="hero__tick" aria-hidden="true" />
 
@@ -51,9 +63,7 @@ export default function Hero() {
           <div className="hero__content">
             <div className="hero__frame">
               <span className="hero__frame-tag mono">FIG. 01</span>
-              <p className="eyebrow hero__eyebrow">
-                RESIDENTIAL BUILDER — {site.region} — EST. {site.establishedYear}
-              </p>
+              <p className="eyebrow hero__eyebrow">{eyebrow}</p>
               <h1 className="hero__title">
                 We design it <span className="highlight">AND</span> build it.
               </h1>
@@ -70,10 +80,12 @@ export default function Hero() {
                 Request a quote
                 <IconArrow className="btn__arrow" />
               </a>
-              <a href="#work" className="btn btn--ghost">
-                See our work
-                <IconArrow className="btn__arrow" />
-              </a>
+              {projects.length > 0 && (
+                <a href="#work" className="btn btn--ghost">
+                  See our work
+                  <IconArrow className="btn__arrow" />
+                </a>
+              )}
             </div>
           </div>
 
@@ -95,14 +107,16 @@ export default function Hero() {
           </aside>
         </div>
 
-        <div className="stat-strip">
-          {STATS.map((stat) => (
-            <div className="stat-strip__item" key={stat.label}>
-              <StatCounter className="stat-strip__value" value={stat.value} />
-              <span className="stat-strip__label">{stat.label}</span>
-            </div>
-          ))}
-        </div>
+        {stats.length > 0 && (
+          <div className="stat-strip">
+            {stats.map((stat) => (
+              <div className="stat-strip__item" key={stat.label}>
+                <StatCounter className="stat-strip__value" value={stat.value} />
+                <span className="stat-strip__label">{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

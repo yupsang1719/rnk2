@@ -1,7 +1,9 @@
 import QuoteForm from './QuoteForm'
-import { site } from '../siteConfig'
+import { useSiteData } from '../SiteData'
 
 export default function QuoteCTA() {
+  const { settings } = useSiteData()
+
   return (
     <section className="section section--light" id="quote">
       <div className="container quote-section">
@@ -13,9 +15,12 @@ export default function QuoteCTA() {
             arrange a site visit. No obligation, no generic sales pitch — just a straight
             answer on what&apos;s possible.
           </p>
-          <p className="lede mono" style={{ fontSize: '0.9rem', marginTop: '24px' }}>
-            Prefer to call? {site.contact.phone}
-          </p>
+          {settings.phone && (
+            <p className="lede mono" style={{ fontSize: '0.9rem', marginTop: '24px' }}>
+              Prefer to call?{' '}
+              <a href={`tel:${settings.phone.replace(/[^\d+]/g, '')}`}>{settings.phone}</a>
+            </p>
+          )}
         </div>
 
         <QuoteForm />

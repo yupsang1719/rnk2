@@ -15,6 +15,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true
+      },
+      // Photos uploaded through the CMS are stored and served by the API server.
+      '/uploads': {
+        target: 'http://localhost:5000',
+        changeOrigin: true
       }
     }
   }

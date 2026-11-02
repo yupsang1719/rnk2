@@ -2,30 +2,34 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Reveal from './Reveal'
 import WorkFilters from './WorkFilters'
-import { site } from '../siteConfig'
+import { useSiteData } from '../SiteData'
 import { IconPlus } from './icons'
 import { hidePhotoOnError } from '../utils/imageFallback'
 
 export default function Work() {
+  const { projects: allProjects } = useSiteData()
   const [activeType, setActiveType] = useState('All')
   const [sortOrder, setSortOrder] = useState('default')
 
   const types = useMemo(
-    () => ['All', ...new Set(site.work.map((project) => project.type))],
-    []
+    () => ['All', ...new Set(allProjects.map((project) => project.type).filter(Boolean))],
+    [allProjects]
   )
+  const canSortByBudget = allProjects.some((p) => p.budgetTier)
 
   const projects = useMemo(() => {
-    let list = site.work.filter((project) => activeType === 'All' || project.type === activeType)
+    let list = allProjects.filter((project) => activeType === 'All' || project.type === activeType)
+    // Projects without a budget band sort last either way.
+    const tier = (p, fallback) => p.budgetTier ?? fallback
 
     if (sortOrder === 'budget-asc') {
-      list = [...list].sort((a, b) => a.budgetTier - b.budgetTier)
+      list = [...list].sort((a, b) => tier(a, 99) - tier(b, 99))
     } else if (sortOrder === 'budget-desc') {
-      list = [...list].sort((a, b) => b.budgetTier - a.budgetTier)
+      list = [...list].sort((a, b) => tier(b, 0) - tier(a, 0))
     }
 
     return list
-  }, [activeType, sortOrder])
+  }, [allProjects, activeType, sortOrder])
 
   return (
     <section className="section section--light" id="work">
@@ -33,17 +37,19 @@ export default function Work() {
         <span className="section-label">SEC.02 / SELECTED WORK</span>
         <h2>Recent projects</h2>
         <p className="lede">
-          A small selection of finished jobs. Placeholder photos and project names — swap
-          for real project photography before launch.
+          A selection of finished jobs — each one designed, approved and built by the same team.
         </p>
 
-        <WorkFilters
-          types={types}
-          activeType={activeType}
-          onTypeChange={setActiveType}
-          sortOrder={sortOrder}
-          onSortChange={setSortOrder}
-        />
+        {(types.length > 2 || canSortByBudget) && (
+          <WorkFilters
+            types={types.length > 2 ? types : []}
+            activeType={activeType}
+            onTypeChange={setActiveType}
+            sortOrder={sortOrder}
+            onSortChange={setSortOrder}
+            showSort={canSortByBudget}
+          />
+        )}
 
         {projects.length === 0 ? (
           <p className="work-empty">No projects match this filter.</p>
@@ -57,7 +63,12 @@ export default function Work() {
                 key={project.slug}
               >
                 <div className="work-card__media">
-                  <img src={project.image} alt={project.title} onError={hidePhotoOnError} loading="lazy" />
+                  <img
+                    src={project.thumb || project.image}
+                    alt={project.title}
+                    onError={hidePhotoOnError}
+                    loading="lazy"
+                  />
                   <div className="work-card__overlay" aria-hidden="true">
                     <span className="work-card__view">
                       <IconPlus className="work-card__view-icon" />
@@ -66,9 +77,9 @@ export default function Work() {
                   </div>
                 </div>
                 <div className="work-card__body">
-                  <span className="work-card__type">{project.type}</span>
+                  {project.type && <span className="work-card__type">{project.type}</span>}
                   <h3 className="work-card__title">{project.title}</h3>
-                  <p className="work-card__spec mono">{project.spec}</p>
+                  {project.spec && <p className="work-card__spec mono">{project.spec}</p>}
                 </div>
               </Reveal>
             ))}
