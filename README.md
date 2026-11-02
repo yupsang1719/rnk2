@@ -69,11 +69,15 @@ cd rnk2-properties/client
 npm run dev
 ```
 
-The Vite dev server proxies any `/api/*` request to `http://localhost:5000`
+The Vite dev server proxies `/api/*` and `/uploads/*` to `http://localhost:5000`
 (see `client/vite.config.js`), so the React app talks to the API with plain
 relative fetches — no CORS juggling needed in development.
 
-Open `http://localhost:5173` in a browser.
+Open `http://localhost:5173` for the site and `http://localhost:5173/admin`
+for the CMS.
+
+No local MongoDB? On macOS:
+`brew tap mongodb/brew && brew install mongodb-community && brew services start mongodb-community`.
 
 ## Routes
 
@@ -198,40 +202,126 @@ Regular`, `fonts/Noto Sans Medium`, `fonts/Noto Sans Italic`, and
 [protomaps/basemaps-assets](https://github.com/protomaps/basemaps-assets)
 into the paths above.
 
-## Going live
+## Going live — checklist
 
 The Express server serves the API, uploaded photos **and** the built React
-app from one process, so a single Node host is enough.
+app from one process, so a single Node host is enough. It already provides
+the SPA fallback for `/work/:slug` and `/admin/*`, long-lived caching for
+hashed assets and uploads, a strict Content-Security-Policy and other
+security headers (helmet), and byte-range support for the map tiles.
 
-1. **Database** — create a MongoDB database (e.g. a free MongoDB Atlas
-   cluster) and copy its connection string.
-2. **Build the client**
-   ```bash
-   cd rnk2-properties/client && npm ci && npm run build
-   ```
-3. **Install and configure the server**
-   ```bash
-   cd ../server && npm ci --omit=dev
-   ```
-   Set environment variables on the host:
-   - `MONGODB_URI` — the connection string
-   - `JWT_SECRET` — at least 32 random characters
-     (`node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`)
-   - `UPLOAD_DIR` — a path on a **persistent disk/volume**. Hosts with an
-     ephemeral filesystem (Render/Railway/Heroku without a volume) delete
-     uploads on every redeploy — attach a disk and point this at it.
-   - `PORT` if your host requires a specific one.
-4. **Start** with `npm start` (sets `NODE_ENV=production`), then create the
-   first login: `npm run create-admin -- you@example.com "Your Name"`.
-5. **HTTPS** — run behind HTTPS (your host's TLS, or nginx/Caddy). The CMS
-   cookie is `Secure` in production, so sign-in won't work over plain HTTP.
-   If there is more than one proxy in front of the app, set `TRUST_PROXY`.
-6. **Backups** — back up both the MongoDB database and `UPLOAD_DIR`.
+### 1. Database (MongoDB Atlas, free tier is fine)
 
-The server already provides the SPA fallback for `/work/:slug` and
-`/admin/*`, long-lived caching for hashed assets and uploads, a strict
-Content-Security-Policy and other security headers (helmet), and byte-range
-support for the map tiles.
+- [ ] Sign up at [mongodb.com/atlas](https://www.mongodb.com/atlas) and create
+      a free **M0** cluster in the London region (`eu-west-2`).
+- [ ] **Database Access** → add a database user with a long generated password.
+- [ ] **Network Access** → add `0.0.0.0/0` (or your host's fixed outbound IP if
+      it has one).
+- [ ] **Connect → Drivers** → copy the connection string, fill in the password
+      and add the database name before the `?`:
+      ```
+      mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/rnk2-properties?retryWrites=true&w=majority
+      ```
+
+### 2. Host
+
+- [ ] Connect the GitHub repo, branch `main`.
+- [ ] **Build command**
+      ```bash
+      cd client && npm ci && npm run build && cd ../server && npm ci --omit=dev
+      ```
+- [ ] **Start command**
+      ```bash
+      cd server && npm start
+      ```
+      (`npm start` sets `NODE_ENV=production`.)
+- [ ] **Node version** 22 (minimum 18.17).
+- [ ] **Persistent disk / volume** (~1GB) mounted at e.g. `/var/data`.
+      Hosts with an ephemeral filesystem (Render/Railway/Heroku without a
+      volume) delete uploaded photos on every redeploy.
+- [ ] **Environment variables**
+
+      | Key | Value |
+      |---|---|
+      | `MONGODB_URI` | connection string from step 1 (required) |
+      | `JWT_SECRET` | min. 32 random characters (required) — generate with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
+      | `UPLOAD_DIR` | a folder on the persistent disk, e.g. `/var/data/uploads` |
+      | `PORT` | only if the host requires a specific port (default `5000`) |
+      | `TRUST_PROXY` | leave unset unless there is more than one proxy in front of the app |
+
+- [ ] Deploy and wait for `RNK2 Properties listening` in the logs.
+
+### 3. First CMS login
+
+- [ ] In the host's shell/console:
+      ```bash
+      cd server && ADMIN_PASSWORD='a-strong-password' npm run create-admin -- you@yourdomain.co.uk "Your Name"
+      ```
+
+### 4. Domain & HTTPS
+
+- [ ] Add the domain and `www.` in the host's custom-domain settings.
+- [ ] Add the DNS records it gives you at the domain registrar.
+- [ ] Confirm HTTPS works. The CMS cookie is `Secure` in production, so
+      sign-in will not work over plain HTTP.
+
+### 5. Check it on the live site
+
+- [ ] Homepage loads (with nothing published there is no Work section or map —
+      that's expected).
+- [ ] Sign in at `https://yourdomain/admin`.
+- [ ] Add a test project with 2–3 photos → **Save & show on website** → check
+      the homepage card, project page and map pin.
+- [ ] **Redeploy**, then confirm the photos are still there (proves the
+      persistent disk is set up correctly).
+- [ ] Send a test quote from the website → it appears under **Enquiries**.
+- [ ] `curl -I -H "Range: bytes=0-1" https://yourdomain/tiles/thames-valley.pmtiles`
+      returns `206`.
+- [ ] Delete the test project and test enquiry.
+
+### 6. Hand over to RNK2
+
+- [ ] **Account → Add a person** for each RNK2 staff member. Send the
+      password separately and ask them to change it after first sign-in.
+- [ ] Send them the [CMS guide for RNK2](#cms-guide-for-rnk2) below.
+- [ ] Once real projects are in, review every project page and confirm each
+      homeowner has agreed to be shown.
+
+### 7. Legal & housekeeping
+
+- [ ] In `client/src/siteConfig.js`, update `legal.dataSharedWith` with the
+      real processor names (host, MongoDB Atlas, email provider) and set
+      `legal.policyUpdated` to the go-live date.
+- [ ] Backups: export the database periodically (Atlas export or
+      `mongodump`) and copy the `UPLOAD_DIR` folder. Atlas M0 has no
+      automatic backups.
+
+## CMS guide for RNK2
+
+Plain-English instructions to send to the people updating the website.
+
+1. Go to **yourdomain/admin** and sign in.
+2. **Company details** — fill in what you can (year established, phone, email,
+   address, Companies House number, a customer review, a homepage photo) and
+   click **Save changes**. Anything left blank is simply hidden on the website.
+3. **Projects → + Add a project**
+   - Fill in the name, type, town (never the street) and county.
+   - Drag in all the photos at once. The first one is the cover — use
+     **Make cover** or the arrows to change the order, and add a short caption
+     to each.
+   - Optionally add a **before** photo, taken from the same spot as the cover,
+     to show a before/after slider.
+   - Write the brief (and the approach/result if you can).
+   - Click **Save & show on website**, or **Save as draft** to finish later.
+     The panel on the right lists anything still needed before it can go live.
+4. On the **Projects** list, use ▲ ▼ to change the order on the website, and
+   **Hide from website** to take a project down without deleting it.
+5. **Enquiries** shows quote requests from the website. Delete them once
+   they're dealt with — the privacy policy promises not to keep them longer
+   than 24 months.
+6. **Account** — change your password, or add/remove people who can sign in.
+7. **iPhone photos:** upload them from the iPhone itself, or export them as JPG
+   first when using a computer (HEIC files can't be read).
 
 ### Hosting the client separately (optional)
 
