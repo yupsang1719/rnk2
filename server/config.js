@@ -27,6 +27,8 @@ export const config = {
   port: Number(process.env.PORT) || 5001,
   mongoUri: required('MONGODB_URI', 'mongodb://127.0.0.1:27017/rnk2-properties'),
   clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+  // Public address of the site, used in the sitemap and link-preview tags.
+  siteUrl: process.env.SITE_URL || process.env.CLIENT_ORIGIN || 'http://localhost:5173',
   jwtSecret,
   // Where uploaded photos are written. On a host with an ephemeral filesystem,
   // point this at a persistent disk/volume or uploads will vanish on redeploy.
