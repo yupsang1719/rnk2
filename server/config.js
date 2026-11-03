@@ -24,7 +24,7 @@ if (isProduction && jwtSecret.length < 32) {
 
 export const config = {
   isProduction,
-  port: Number(process.env.PORT) || 5000,
+  port: Number(process.env.PORT) || 5001,
   mongoUri: required('MONGODB_URI', 'mongodb://127.0.0.1:27017/rnk2-properties'),
   clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
   jwtSecret,

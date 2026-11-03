@@ -55,7 +55,7 @@ signed in, further people can be added from **Account** in the CMS.
 
 ## 3. Run both apps (two terminals)
 
-**Terminal 1 — API server** (starts on `http://localhost:5000`):
+**Terminal 1 — API server** (starts on `http://localhost:5001`):
 
 ```bash
 cd rnk2-properties/server
@@ -69,7 +69,7 @@ cd rnk2-properties/client
 npm run dev
 ```
 
-The Vite dev server proxies `/api/*` and `/uploads/*` to `http://localhost:5000`
+The Vite dev server proxies `/api/*` and `/uploads/*` to `http://localhost:5001`
 (see `client/vite.config.js`), so the React app talks to the API with plain
 relative fetches — no CORS juggling needed in development.
 
@@ -246,7 +246,7 @@ security headers (helmet), and byte-range support for the map tiles.
       | `MONGODB_URI` | connection string from step 1 (required) |
       | `JWT_SECRET` | min. 32 random characters (required) — generate with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
       | `UPLOAD_DIR` | a folder on the persistent disk, e.g. `/var/data/uploads` |
-      | `PORT` | only if the host requires a specific port (default `5000`) |
+      | `PORT` | only if the host requires a specific port (default `5001`) |
       | `TRUST_PROXY` | leave unset unless there is more than one proxy in front of the app |
 
 - [ ] Deploy and wait for `RNK2 Properties listening` in the logs.
