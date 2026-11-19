@@ -30,8 +30,9 @@ export default function LoginPage() {
   return (
     <div className="adm-login">
       <form className="adm-card adm-login__card" onSubmit={submit}>
+        <img className="adm-login__logo" src="/logos/rnk2-vertical.svg" alt="RNK2 Properties Ltd" width="282" height="191" />
         <p className="adm-brand adm-brand--dark">
-          RNK2 <span>{'// Website admin'}</span>
+          <span>{'// Website admin'}</span>
         </p>
         <h1 className="adm-h1">Sign in</h1>
 

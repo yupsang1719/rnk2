@@ -254,23 +254,16 @@ h3 {
   color: #fff;
   text-decoration: none;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
 }
-.wordmark__mark {
-  width: 18px;
-  height: 18px;
-  align-self: center;
-  color: var(--sky-bright);
-  flex-shrink: 0;
+.wordmark__logo {
+  display: block;
+  height: 40px;
+  width: auto;
 }
-.wordmark span {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  color: var(--sky-bright);
-  text-transform: uppercase;
+@media (max-width: 480px) {
+  .wordmark__logo { height: 34px; }
 }
 .site-nav {
   display: flex;
@@ -1783,6 +1776,12 @@ h3 {
   gap: 40px;
   padding-bottom: 40px;
   border-bottom: 1px solid var(--hairline-dark);
+}
+.footer-logo {
+  display: block;
+  height: 52px;
+  width: auto;
+  margin-bottom: 20px;
 }
 .footer-grid h4 {
   font-family: var(--font-mono);

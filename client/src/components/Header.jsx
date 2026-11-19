@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { IconArrow, IconSetSquare } from './icons'
+import { IconArrow } from './icons'
 import { useSiteData } from '../SiteData'
 
 const NAV_LINKS = [
@@ -27,9 +27,14 @@ export default function Header() {
   return (
     <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
       <div className="container site-header__bar">
-        <Link to="/" className="wordmark">
-          <IconSetSquare className="wordmark__mark" aria-hidden="true" />
-          RNK2 <span>{'// PROPERTIES LTD'}</span>
+        <Link to="/" className="wordmark" aria-label="RNK2 Properties Ltd — home">
+          <img
+            className="wordmark__logo"
+            src="/logos/rnk2-horizontal-on-dark.svg"
+            alt="RNK2 Properties Ltd"
+            width="329"
+            height="99"
+          />
         </Link>
 
         <nav className="site-nav" aria-label="Primary">

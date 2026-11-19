@@ -71,7 +71,8 @@ export default function AdminApp() {
         <header className="adm-bar">
           <div className="adm-bar__inner">
             <span className="adm-brand">
-              RNK2 <span>{'// Website admin'}</span>
+              <img className="adm-brand__logo" src="/logos/rnk2-icon-on-dark.svg" alt="RNK2" width="193" height="156" />
+              <span>{'// Website admin'}</span>
             </span>
             <nav className="adm-nav" aria-label="Admin">
               <NavLink to="/admin" end>Projects</NavLink>

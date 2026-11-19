@@ -43,6 +43,10 @@
   opacity: 0.7;
 }
 .adm-brand--dark { color: var(--navy); }
+.adm-brand { display: inline-flex; align-items: center; gap: 10px; }
+.adm-brand__logo { display: block; height: 28px; width: auto; }
+.adm-login__logo { display: block; height: 96px; width: auto; margin: 0 auto 4px; }
+.adm-login__card .adm-brand { justify-content: center; }
 .adm-nav { display: flex; gap: 4px; flex-wrap: wrap; }
 .adm-nav a {
   color: rgba(255, 255, 255, 0.78);

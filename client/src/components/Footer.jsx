@@ -25,7 +25,14 @@ export default function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div>
-            <h4>RNK2 // Properties Ltd</h4>
+            <img
+              className="footer-logo"
+              src="/logos/rnk2-horizontal-on-dark.svg"
+              alt="RNK2 Properties Ltd"
+              width="329"
+              height="99"
+              loading="lazy"
+            />
             {contactLines.length > 0 && (
               <p>
                 {contactLines.map((line, i) => (
