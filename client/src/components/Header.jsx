@@ -1,19 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { IconArrow } from './icons'
-import { useSiteData } from '../SiteData'
-
-const NAV_LINKS = [
-  { href: '/#capabilities', label: 'Capabilities' },
-  { href: '/#work', label: 'Work' },
-  { href: '/#process', label: 'Process' }
-]
+import { useContent } from '../SiteData'
+import SmartLink from './SmartLink'
 
 export default function Header() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const { projects } = useSiteData()
-  const links = NAV_LINKS.filter((link) => link.href !== '/#work' || projects.length > 0)
+  const { projects, c } = useContent('header')
+  const links = c.navLinks.filter((link) => link.href !== '/#work' || projects.length > 0)
 
   const closeMenu = () => setOpen(false)
 
@@ -39,16 +34,16 @@ export default function Header() {
 
         <nav className="site-nav" aria-label="Primary">
           <ul className="site-nav__links">
-            {links.map((link) => (
-              <li key={link.href}>
-                <Link to={link.href}>{link.label}</Link>
+            {links.map((link, i) => (
+              <li key={i}>
+                <SmartLink to={link.href}>{link.label}</SmartLink>
               </li>
             ))}
           </ul>
-          <Link to="/#quote" className="btn btn--primary">
-            Request a quote
+          <SmartLink to={c.ctaHref} className="btn btn--primary">
+            {c.ctaLabel}
             <IconArrow className="btn__arrow" />
-          </Link>
+          </SmartLink>
         </nav>
 
         <button
@@ -74,15 +69,15 @@ export default function Header() {
         className={`mobile-menu ${open ? 'is-open' : ''}`}
         aria-label="Mobile"
       >
-        {links.map((link) => (
-          <Link key={link.href} to={link.href} onClick={closeMenu}>
+        {links.map((link, i) => (
+          <SmartLink key={i} to={link.href} onClick={closeMenu}>
             {link.label}
-          </Link>
+          </SmartLink>
         ))}
-        <Link to="/#quote" className="btn btn--primary" onClick={closeMenu}>
-          Request a quote
+        <SmartLink to={c.ctaHref} className="btn btn--primary" onClick={closeMenu}>
+          {c.ctaLabel}
           <IconArrow className="btn__arrow" />
-        </Link>
+        </SmartLink>
       </nav>
     </header>
   )

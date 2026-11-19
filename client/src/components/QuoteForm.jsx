@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { IconCheck } from './icons'
-
-const PROJECT_TYPES = ['Extension', 'Conversion', 'New Build', 'Design only']
+import { useContent } from '../SiteData'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const UK_POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i
@@ -17,32 +16,41 @@ const EMPTY_FORM = {
   consent: false
 }
 
-function validate(form) {
+// Field -> error message key in the CMS copy (Site content → Get a quote).
+const ERROR_KEYS = {
+  name: 'errName',
+  email: 'errEmail',
+  phone: 'errPhone',
+  projectType: 'errProjectType',
+  postcode: 'errPostcode',
+  consent: 'errConsent'
+}
+
+function validate(form, projectTypes, c) {
   const errors = {}
 
-  if (form.name.trim().length < 2) {
-    errors.name = 'Enter your full name.'
-  }
-  if (!EMAIL_RE.test(form.email.trim())) {
-    errors.email = 'Enter a valid email address.'
-  }
-  if (form.phone.trim().length < 7) {
-    errors.phone = 'Enter a valid phone number.'
-  }
-  if (!PROJECT_TYPES.includes(form.projectType)) {
-    errors.projectType = 'Choose a project type.'
-  }
-  if (!UK_POSTCODE_RE.test(form.postcode.trim())) {
-    errors.postcode = 'Enter a valid UK postcode.'
-  }
-  if (!form.consent) {
-    errors.consent = 'You must agree to the Privacy Policy to continue.'
-  }
+  if (form.name.trim().length < 2) errors.name = c.errName
+  if (!EMAIL_RE.test(form.email.trim())) errors.email = c.errEmail
+  if (form.phone.trim().length < 7) errors.phone = c.errPhone
+  if (!projectTypes.includes(form.projectType)) errors.projectType = c.errProjectType
+  if (!UK_POSTCODE_RE.test(form.postcode.trim())) errors.postcode = c.errPostcode
+  if (!form.consent) errors.consent = c.errConsent
 
   return errors
 }
 
+// Show the CMS wording for any field the server rejected.
+function serverErrors(errors, c) {
+  const out = {}
+  for (const [field, message] of Object.entries(errors || {})) {
+    out[field] = (ERROR_KEYS[field] && c[ERROR_KEYS[field]]) || message
+  }
+  return out
+}
+
 export default function QuoteForm() {
+  const { c } = useContent('quote')
+  const projectTypes = c.projectTypes.map((t) => t.text)
   const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState('idle') // idle | loading | success | error
@@ -59,7 +67,7 @@ export default function QuoteForm() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    const clientErrors = validate(form)
+    const clientErrors = validate(form, projectTypes, c)
     setErrors(clientErrors)
 
     if (Object.keys(clientErrors).length > 0) {
@@ -82,22 +90,17 @@ export default function QuoteForm() {
 
       if (res.ok) {
         setStatus('success')
-        setStatusMessage("Thanks — we'll be in touch within one working day.")
+        setStatusMessage(c.successMessage)
         setForm(EMPTY_FORM)
         setErrors({})
       } else {
-        setErrors(data.errors || {})
+        setErrors(serverErrors(data.errors, c))
         setStatus('error')
-        setStatusMessage(
-          data.errors?.form ||
-            'A few details need a second look — check the form and try again.'
-        )
+        setStatusMessage(data.errors?.form || c.errorMessage)
       }
     } catch {
       setStatus('error')
-      setStatusMessage(
-        "We couldn't reach the server. Check your connection and try again."
-      )
+      setStatusMessage(c.networkError)
     }
   }
 
@@ -107,7 +110,7 @@ export default function QuoteForm() {
     <form className="quote-form" onSubmit={handleSubmit} noValidate>
       <div className="form-grid">
         <div className={fieldClass('name')}>
-          <label htmlFor="name">Full name</label>
+          <label htmlFor="name">{c.nameLabel}</label>
           <input
             id="name"
             type="text"
@@ -125,7 +128,7 @@ export default function QuoteForm() {
         </div>
 
         <div className={fieldClass('email')}>
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">{c.emailLabel}</label>
           <input
             id="email"
             type="email"
@@ -143,7 +146,7 @@ export default function QuoteForm() {
         </div>
 
         <div className={fieldClass('phone')}>
-          <label htmlFor="phone">Phone</label>
+          <label htmlFor="phone">{c.phoneLabel}</label>
           <input
             id="phone"
             type="tel"
@@ -161,7 +164,7 @@ export default function QuoteForm() {
         </div>
 
         <div className={fieldClass('projectType')}>
-          <label htmlFor="projectType">Project type</label>
+          <label htmlFor="projectType">{c.projectTypeLabel}</label>
           <select
             id="projectType"
             value={form.projectType}
@@ -169,8 +172,8 @@ export default function QuoteForm() {
             aria-invalid={Boolean(errors.projectType)}
             aria-describedby={errors.projectType ? 'projectType-error' : undefined}
           >
-            <option value="">Select one…</option>
-            {PROJECT_TYPES.map((type) => (
+            <option value="">{c.projectTypePlaceholder}</option>
+            {projectTypes.map((type) => (
               <option key={type} value={type}>
                 {type}
               </option>
@@ -184,7 +187,7 @@ export default function QuoteForm() {
         </div>
 
         <div className={fieldClass('postcode')}>
-          <label htmlFor="postcode">Postcode</label>
+          <label htmlFor="postcode">{c.postcodeLabel}</label>
           <input
             id="postcode"
             type="text"
@@ -202,7 +205,7 @@ export default function QuoteForm() {
         </div>
 
         <div className="field field--full">
-          <label htmlFor="message">Tell us about the project (optional)</label>
+          <label htmlFor="message">{c.messageLabel}</label>
           <textarea
             id="message"
             value={form.message}
@@ -227,9 +230,9 @@ export default function QuoteForm() {
             <IconCheck className="consent-field__check" />
           </span>
           <span className="consent-field__text">
-            I have read and agree to the{' '}
+            {c.consentText}{' '}
             <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer">
-              Privacy Policy
+              {c.consentLinkText}
             </Link>
             .
           </span>
@@ -243,7 +246,7 @@ export default function QuoteForm() {
 
       <div className="quote-form__submit">
         <button type="submit" className="btn btn--primary" disabled={status === 'loading'}>
-          {status === 'loading' ? 'Sending…' : 'Request a quote'}
+          {status === 'loading' ? c.sendingLabel : c.submitLabel}
         </button>
       </div>
 

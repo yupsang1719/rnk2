@@ -1,7 +1,5 @@
 import mongoose from 'mongoose'
 
-const PROJECT_TYPES = ['Extension', 'Conversion', 'New Build', 'Design only']
-
 const quoteSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -27,7 +25,10 @@ const quoteSchema = new mongoose.Schema({
   projectType: {
     type: String,
     required: true,
-    enum: PROJECT_TYPES
+    trim: true,
+    // Choices are edited in the CMS (Site content → Get a quote) and checked
+    // against the published list in routes/quotes.js.
+    maxlength: 60
   },
   postcode: {
     type: String,
@@ -60,5 +61,4 @@ const quoteSchema = new mongoose.Schema({
   }
 })
 
-export const PROJECT_TYPE_VALUES = PROJECT_TYPES
 export default mongoose.model('Quote', quoteSchema)

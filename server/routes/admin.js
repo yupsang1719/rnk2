@@ -14,9 +14,11 @@ import { requireAdminHeader, requireAuth } from '../middleware/auth.js'
 import { deleteRemovedImages, isOwnUpload, processImage } from '../lib/images.js'
 import { geocodeTown } from '../lib/geocode.js'
 import { uniqueSlug } from '../lib/slug.js'
+import contentRouter from './adminContent.js'
 
 const router = Router()
 router.use(requireAuth, requireAdminHeader)
+router.use('/content', contentRouter)
 
 const isId = (id) => mongoose.isValidObjectId(id)
 const notFound = (res) => res.status(404).json({ ok: false, error: 'Not found.' })
@@ -223,29 +225,20 @@ router.delete('/projects/:id', async (req, res) => {
 // ---------------------------------------------------------------- settings
 router.get('/settings', async (_req, res) => {
   const s = await getSettings()
-  const out = toPublicSettings(s)
-  out.heroImage = s.heroImage || null
-  res.json({ ok: true, settings: out })
+  res.json({ ok: true, settings: toPublicSettings(s) })
 })
 
 router.put('/settings', async (req, res) => {
   const s = await getSettings()
   const body = req.body || {}
-  const oldHero = s.heroImage ? [s.heroImage.toObject?.() || s.heroImage] : []
   for (const k of EDITABLE_SETTINGS) {
     if (!(k in body)) continue
     if (k === 'fullyInsured') s.fullyInsured = body.fullyInsured === true
-    else if (k === 'heroImage') s.heroImage = body.heroImage && isOwnUpload(body.heroImage)
-      ? { url: body.heroImage.url, thumbUrl: body.heroImage.thumbUrl }
-      : null
     else s[k] = typeof body[k] === 'string' ? body[k].trim() : ''
   }
   try {
     await s.save()
-    await deleteRemovedImages(oldHero, s.heroImage ? [s.heroImage] : [])
-    const out = toPublicSettings(s)
-    out.heroImage = s.heroImage || null
-    res.json({ ok: true, settings: out })
+    res.json({ ok: true, settings: toPublicSettings(s) })
   } catch (err) {
     res.status(400).json({ ok: false, error: validationMessage(err) })
   }

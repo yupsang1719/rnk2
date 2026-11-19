@@ -2,23 +2,24 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Reveal from './Reveal'
 import WorkFilters from './WorkFilters'
-import { useSiteData } from '../SiteData'
+import { useContent } from '../SiteData'
 import { IconPlus } from './icons'
 import { hidePhotoOnError } from '../utils/imageFallback'
 
 export default function Work() {
-  const { projects: allProjects } = useSiteData()
-  const [activeType, setActiveType] = useState('All')
+  const { projects: allProjects, c } = useContent('work')
+  // null = show every type (the "All" button)
+  const [activeType, setActiveType] = useState(null)
   const [sortOrder, setSortOrder] = useState('default')
 
   const types = useMemo(
-    () => ['All', ...new Set(allProjects.map((project) => project.type).filter(Boolean))],
+    () => [...new Set(allProjects.map((project) => project.type).filter(Boolean))],
     [allProjects]
   )
   const canSortByBudget = allProjects.some((p) => p.budgetTier)
 
   const projects = useMemo(() => {
-    let list = allProjects.filter((project) => activeType === 'All' || project.type === activeType)
+    let list = allProjects.filter((project) => activeType === null || project.type === activeType)
     // Projects without a budget band sort last either way.
     const tier = (p, fallback) => p.budgetTier ?? fallback
 
@@ -34,15 +35,14 @@ export default function Work() {
   return (
     <section className="section section--light" id="work">
       <div className="container">
-        <span className="section-label">SEC.02 / SELECTED WORK</span>
-        <h2>Recent projects</h2>
-        <p className="lede">
-          A selection of finished jobs — each one designed, approved and built by the same team.
-        </p>
+        {c.label && <span className="section-label">{c.label}</span>}
+        {c.heading && <h2>{c.heading}</h2>}
+        {c.lede && <p className="lede">{c.lede}</p>}
 
-        {(types.length > 2 || canSortByBudget) && (
+        {(types.length > 1 || canSortByBudget) && (
           <WorkFilters
-            types={types.length > 2 ? types : []}
+            labels={c}
+            types={types.length > 1 ? types : []}
             activeType={activeType}
             onTypeChange={setActiveType}
             sortOrder={sortOrder}
@@ -52,7 +52,7 @@ export default function Work() {
         )}
 
         {projects.length === 0 ? (
-          <p className="work-empty">No projects match this filter.</p>
+          <p className="work-empty">{c.empty}</p>
         ) : (
           <div className="work-grid">
             {projects.map((project) => (
@@ -72,7 +72,7 @@ export default function Work() {
                   <div className="work-card__overlay" aria-hidden="true">
                     <span className="work-card__view">
                       <IconPlus className="work-card__view-icon" />
-                      View project
+                      {c.viewProject}
                     </span>
                   </div>
                 </div>

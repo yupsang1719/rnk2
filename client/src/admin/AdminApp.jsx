@@ -5,6 +5,7 @@ import LoginPage from './LoginPage'
 import ProjectsPage from './ProjectsPage'
 import ProjectEditor from './ProjectEditor'
 import SettingsPage from './SettingsPage'
+import ContentPage from './ContentPage'
 import EnquiriesPage from './EnquiriesPage'
 import AccountPage from './AccountPage'
 import './admin.css'
@@ -76,6 +77,7 @@ export default function AdminApp() {
             </span>
             <nav className="adm-nav" aria-label="Admin">
               <NavLink to="/admin" end>Projects</NavLink>
+              <NavLink to="/admin/content">Site content</NavLink>
               <NavLink to="/admin/company">Company details</NavLink>
               <NavLink to="/admin/enquiries">Enquiries</NavLink>
               <NavLink to="/admin/account">Account</NavLink>
@@ -96,6 +98,7 @@ export default function AdminApp() {
             <Route index element={<ProjectsPage />} />
             <Route path="projects/new" element={<ProjectEditor />} />
             <Route path="projects/:id" element={<ProjectEditor />} />
+            <Route path="content" element={<ContentPage />} />
             <Route path="company" element={<SettingsPage />} />
             <Route path="enquiries" element={<EnquiriesPage />} />
             <Route path="account" element={<AccountPage />} />

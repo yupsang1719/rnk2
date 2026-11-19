@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from './api'
-import { SingleUploader } from './PhotoUploader'
+import { Link } from 'react-router-dom'
 
 const SECTIONS = [
   {
@@ -32,15 +32,6 @@ const SECTIONS = [
       { key: 'registrationNo', label: 'Companies House registration number', maxLength: 20 },
       { key: 'icoRegistrationNo', label: 'ICO registration number', hint: 'From ico.org.uk. Leave blank if you don’t have one.', maxLength: 20 },
       { key: 'privacyEmail', label: 'Email for privacy / data requests', hint: 'If blank, the enquiries email is used.', maxLength: 120, type: 'email' }
-    ]
-  },
-  {
-    title: 'Homepage customer review',
-    intro: 'One featured review. Make sure the customer is happy to be quoted and named. Leave the review blank to hide this section.',
-    fields: [
-      { key: 'testimonialQuote', label: 'Review text', maxLength: 600, type: 'textarea', wide: true },
-      { key: 'testimonialName', label: 'Customer name as shown', hint: 'e.g. Sarah & Michael Thompson', maxLength: 120 },
-      { key: 'testimonialTown', label: 'Customer town', hint: 'e.g. Wokingham, Berkshire', maxLength: 120 }
     ]
   }
 ]
@@ -96,7 +87,10 @@ export default function SettingsPage() {
       <div className="adm-page__head">
         <div>
           <h1 className="adm-h1">Company details</h1>
-          <p className="adm-muted">These appear across the whole website.</p>
+          <p className="adm-muted">
+            Facts that appear across the whole website. Wording, the homepage photo and customer reviews are
+            under <Link className="adm-link" to="/admin/content">Site content</Link>.
+          </p>
         </div>
       </div>
 
@@ -143,18 +137,6 @@ export default function SettingsPage() {
         </section>
       ))}
 
-      <section className="adm-card adm-section">
-        <h2 className="adm-h2">Homepage background photo</h2>
-        <p className="adm-muted">
-          The large photo behind the headline. A wide, landscape shot of a finished build works best.
-          If none is uploaded, a stock construction photo is used.
-        </p>
-        <SingleUploader
-          image={form.heroImage}
-          onChange={(img) => set('heroImage', img)}
-          label="Drag a landscape photo here"
-        />
-      </section>
 
       <div className="adm-savebar">
         <span className="adm-muted">{dirty ? 'You have unsaved changes.' : 'All changes saved.'}</span>

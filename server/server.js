@@ -13,6 +13,7 @@ import authRouter from './routes/auth.js'
 import adminRouter from './routes/admin.js'
 import seoRouter from './routes/seo.js'
 import { ensureUploadDir } from './lib/images.js'
+import { getPublishedContent } from './models/Content.js'
 
 const app = express()
 
@@ -107,13 +108,51 @@ if (fs.existsSync(indexHtml)) {
       }
     })
   )
-  // SPA fallback so /work/:slug and /admin/* survive a refresh.
-  app.get('*', (req, res) => {
+  // SPA fallback so /work/:slug and /admin/* survive a refresh. The published
+  // site copy is embedded in the page so it renders without a second request,
+  // and the title/description/link-preview tags follow what's set in the CMS.
+  app.get('*', async (req, res, next) => {
     if (req.path.startsWith('/admin')) res.set('X-Robots-Tag', 'noindex, nofollow')
     res.set('Cache-Control', 'no-cache')
-    res.type('html').send(indexContent)
+    try {
+      res.type('html').send(renderIndex(indexContent, await getPublishedContent()))
+    } catch (err) {
+      console.error('Failed to load site content for page:', err)
+      if (res.headersSent) return next(err)
+      res.type('html').send(indexContent)
+    }
   })
   console.log(`Serving client build from ${config.clientDist}`)
+}
+
+const escapeAttr = (v) =>
+  String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+// JSON inside <script> must not be able to close the tag.
+const safeJson = (v) =>
+  JSON.stringify(v).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029')
+
+function setMeta(html, attr, name, value) {
+  const re = new RegExp(`(<meta\\s+${attr}="${name}"\\s+content=")[^"]*(")`)
+  return html.replace(re, (_m, a, b) => a + escapeAttr(value) + b)
+}
+
+function renderIndex(html, content) {
+  const seo = content.seo
+  const base = config.siteUrl.replace(/\/$/, '')
+  const shareImage = seo.shareImage?.url || content.hero.image?.url
+  let out = html.replace(/<title>[^<]*<\/title>/, `<title>${escapeAttr(seo.title)}</title>`)
+  out = setMeta(out, 'name', 'description', seo.description)
+  out = setMeta(out, 'property', 'og:title', seo.shareTitle || seo.title)
+  out = setMeta(out, 'property', 'og:description', seo.shareDescription || seo.description)
+  if (shareImage) {
+    // Uploaded photos have their own size, so drop the stock photo's dimensions.
+    out = setMeta(out, 'property', 'og:image', base + shareImage)
+      .replace(/\s*<meta property="og:image:(width|height)"[^>]*>/g, '')
+  }
+  return out.replace(
+    '</head>',
+    `<script type="application/json" id="site-content">${safeJson(content)}</script>\n  </head>`
+  )
 }
 
 app.use((err, _req, res, _next) => {

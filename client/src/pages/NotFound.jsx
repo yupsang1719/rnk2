@@ -1,17 +1,21 @@
 import { Link } from 'react-router-dom'
 import { IconArrow } from '../components/icons'
+import { useContent } from '../SiteData'
 
 export default function NotFound() {
+  const { c } = useContent('notFound')
   return (
     <section className="section section--light not-found">
       <div className="container">
-        <span className="section-label">ERR.404</span>
-        <h1 className="not-found__title">Page not found</h1>
-        <p className="lede">That page doesn&apos;t exist, or the project may have been taken down.</p>
-        <Link to="/" className="btn btn--primary not-found__cta">
-          Back to the homepage
-          <IconArrow className="btn__arrow" />
-        </Link>
+        {c.label && <span className="section-label">{c.label}</span>}
+        <h1 className="not-found__title">{c.heading}</h1>
+        {c.text && <p className="lede">{c.text}</p>}
+        {c.button && (
+          <Link to="/" className="btn btn--primary not-found__cta">
+            {c.button}
+            <IconArrow className="btn__arrow" />
+          </Link>
+        )}
       </div>
     </section>
   )

@@ -27,22 +27,28 @@ export function clearSessionCookie(res) {
   })
 }
 
-export async function requireAuth(req, res, next) {
+// The signed-in admin for this request, or null. Never throws.
+export async function userFromRequest(req) {
   const token = req.cookies?.[COOKIE_NAME]
-  if (!token) return res.status(401).json({ ok: false, error: 'Please sign in.' })
+  if (!token) return null
   try {
     const payload = jwt.verify(token, config.jwtSecret)
     const user = await User.findById(payload.sub)
-    if (!user || user.tokenVersion !== payload.v) {
-      clearSessionCookie(res)
-      return res.status(401).json({ ok: false, error: 'Your session has ended. Please sign in again.' })
-    }
-    req.user = user
-    return next()
+    return user && user.tokenVersion === payload.v ? user : null
   } catch {
+    return null
+  }
+}
+
+export async function requireAuth(req, res, next) {
+  if (!req.cookies?.[COOKIE_NAME]) return res.status(401).json({ ok: false, error: 'Please sign in.' })
+  const user = await userFromRequest(req)
+  if (!user) {
     clearSessionCookie(res)
     return res.status(401).json({ ok: false, error: 'Your session has ended. Please sign in again.' })
   }
+  req.user = user
+  return next()
 }
 
 // Cross-site requests can't set custom headers without a CORS preflight we

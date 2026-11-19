@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom'
-import { useSiteData } from '../SiteData'
+import { useContent } from '../SiteData'
 
 export default function Footer() {
-  const { settings } = useSiteData()
-  const year = new Date().getFullYear()
+  const { settings, c } = useContent('footer')
 
   const contactLines = [
     settings.address,
@@ -14,9 +13,9 @@ export default function Footer() {
   ].filter(Boolean)
 
   const assurance = [
-    settings.fullyInsured && <>Fully insured — public liability &amp; employer&apos;s liability</>,
-    settings.guaranteeYears && `${settings.guaranteeYears}-year structural guarantee on new build work`,
-    settings.registrationNo && `Company registration no. ${settings.registrationNo}`
+    settings.fullyInsured && c.insuredLine,
+    settings.guaranteeYears && `${settings.guaranteeYears}-${c.guaranteeText}`,
+    settings.registrationNo && `${c.registrationPrefix} ${settings.registrationNo}`
   ].filter(Boolean)
 
   return (
@@ -47,14 +46,14 @@ export default function Footer() {
 
           {settings.areasCovered && (
             <div>
-              <h4>Areas covered</h4>
+              {c.areasHeading && <h4>{c.areasHeading}</h4>}
               <p>{settings.areasCovered}</p>
             </div>
           )}
 
           {assurance.length > 0 && (
             <div>
-              <h4>Assurance</h4>
+              {c.assuranceHeading && <h4>{c.assuranceHeading}</h4>}
               <ul>
                 {assurance.map((item, i) => (
                   <li key={i}>{item}</li>
@@ -66,8 +65,8 @@ export default function Footer() {
 
         <div className="footer-bottom">
           <div className="footer-bottom__legal">
-            <span>© {year} RNK2 Properties Ltd. All rights reserved.</span>
-            <Link to="/privacy-policy">Privacy Policy</Link>
+            <span>© {new Date().getFullYear()} {c.copyrightText}</span>
+            {c.privacyLinkText && <Link to="/privacy-policy">{c.privacyLinkText}</Link>}
           </div>
         </div>
       </div>

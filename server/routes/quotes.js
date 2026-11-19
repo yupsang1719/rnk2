@@ -1,12 +1,13 @@
 import { Router } from 'express'
-import Quote, { PROJECT_TYPE_VALUES } from '../models/Quote.js'
+import Quote from '../models/Quote.js'
+import { getPublishedContent } from '../models/Content.js'
 
 const router = Router()
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const UK_POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i
 
-function validateQuote(body) {
+function validateQuote(body, projectTypes) {
   const errors = {}
   const { name, email, phone, projectType, postcode, message, consent } = body
 
@@ -19,7 +20,7 @@ function validateQuote(body) {
   if (!phone || typeof phone !== 'string' || phone.trim().length < 7) {
     errors.phone = 'Enter a valid phone number.'
   }
-  if (!projectType || !PROJECT_TYPE_VALUES.includes(projectType)) {
+  if (!projectType || !projectTypes.includes(projectType)) {
     errors.projectType = 'Choose a project type.'
   }
   if (!postcode || typeof postcode !== 'string' || !UK_POSTCODE_RE.test(postcode.trim())) {
@@ -36,7 +37,14 @@ function validateQuote(body) {
 }
 
 router.post('/', async (req, res) => {
-  const errors = validateQuote(req.body || {})
+  let projectTypes
+  try {
+    projectTypes = (await getPublishedContent()).quote.projectTypes.map((t) => t.text)
+  } catch (err) {
+    console.error('Failed to load quote form options:', err)
+    return res.status(500).json({ ok: false, errors: { form: 'Something went wrong on our end. Please try again shortly.' } })
+  }
+  const errors = validateQuote(req.body || {}, projectTypes)
 
   if (Object.keys(errors).length > 0) {
     return res.status(400).json({ ok: false, errors })

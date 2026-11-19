@@ -4,6 +4,7 @@ import ScrollProgress from './components/ScrollProgress'
 import ScrollToTop from './components/ScrollToTop'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import PreviewBar from './components/PreviewBar'
 import Home from './pages/Home'
 import ProjectDetail from './pages/ProjectDetail'
 import PrivacyPolicy from './pages/PrivacyPolicy'
@@ -28,6 +29,7 @@ function PublicSite() {
         </Routes>
       </main>
       <Footer />
+      <PreviewBar />
     </SiteDataProvider>
   )
 }

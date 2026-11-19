@@ -1,23 +1,19 @@
 import QuoteForm from './QuoteForm'
-import { useSiteData } from '../SiteData'
+import { useContent } from '../SiteData'
 
 export default function QuoteCTA() {
-  const { settings } = useSiteData()
+  const { settings, c } = useContent('quote')
 
   return (
     <section className="section section--light" id="quote">
       <div className="container quote-section">
         <div className="quote-section__intro">
-          <span className="section-label">SEC.07 / GET A QUOTE</span>
-          <h2>Start with a conversation</h2>
-          <p className="lede">
-            Tell us about your project and we&apos;ll get back to you within one working day to
-            arrange a site visit. No obligation, no generic sales pitch — just a straight
-            answer on what&apos;s possible.
-          </p>
+          {c.label && <span className="section-label">{c.label}</span>}
+          {c.heading && <h2>{c.heading}</h2>}
+          {c.lede && <p className="lede">{c.lede}</p>}
           {settings.phone && (
             <p className="lede mono" style={{ fontSize: '0.9rem', marginTop: '24px' }}>
-              Prefer to call?{' '}
+              {c.callPrompt && `${c.callPrompt} `}
               <a href={`tel:${settings.phone.replace(/[^\d+]/g, '')}`}>{settings.phone}</a>
             </p>
           )}

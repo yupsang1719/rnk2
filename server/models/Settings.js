@@ -24,6 +24,8 @@ const settingsSchema = new mongoose.Schema(
     icoRegistrationNo: str(20),
     privacyEmail: str(120),
 
+    // No longer edited here: the hero photo and reviews moved to Site content
+    // (models/Content.js copies them across the first time it runs).
     testimonialQuote: str(600),
     testimonialName: str(120),
     testimonialTown: str(120),
@@ -49,11 +51,7 @@ export const EDITABLE_SETTINGS = [
   'address',
   'registrationNo',
   'icoRegistrationNo',
-  'privacyEmail',
-  'testimonialQuote',
-  'testimonialName',
-  'testimonialTown',
-  'heroImage'
+  'privacyEmail'
 ]
 
 const Settings = mongoose.model('Settings', settingsSchema)
@@ -69,7 +67,6 @@ export async function getSettings() {
 export function toPublicSettings(s) {
   const out = {}
   for (const k of EDITABLE_SETTINGS) out[k] = s[k] ?? ''
-  out.heroImage = s.heroImage?.url || ''
   out.updatedAt = s.updatedAt
   return out
 }

@@ -21,7 +21,10 @@ export default [
         performance: 'readonly',
         createImageBitmap: 'readonly',
         File: 'readonly',
-        FormData: 'readonly'
+        FormData: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        sessionStorage: 'readonly'
       }
     },
     plugins: { react, 'react-hooks': reactHooks },

@@ -1,17 +1,17 @@
-export default function WorkFilters({ types, activeType, onTypeChange, sortOrder, onSortChange, showSort = true }) {
+export default function WorkFilters({ labels, types, activeType, onTypeChange, sortOrder, onSortChange, showSort = true }) {
   return (
     <div className="work-filters">
       {types.length > 0 && (
         <div className="work-filters__pills" role="group" aria-label="Filter projects by type">
-          {types.map((type) => (
+          {[null, ...types].map((type) => (
             <button
-              key={type}
+              key={type ?? '__all'}
               type="button"
               className={`work-filters__pill mono${type === activeType ? ' is-active' : ''}`}
               aria-pressed={type === activeType}
               onClick={() => onTypeChange(type)}
             >
-              {type}
+              {type ?? labels.filterAll}
             </button>
           ))}
         </div>
@@ -19,15 +19,15 @@ export default function WorkFilters({ types, activeType, onTypeChange, sortOrder
 
       {showSort && (
         <label className="work-filters__sort-label mono">
-          Sort
+          {labels.sortLabel}
           <select
             className="work-filters__sort"
             value={sortOrder}
             onChange={(e) => onSortChange(e.target.value)}
           >
-            <option value="default">Default order</option>
-            <option value="budget-asc">Budget: low to high</option>
-            <option value="budget-desc">Budget: high to low</option>
+            <option value="default">{labels.sortDefault}</option>
+            <option value="budget-asc">{labels.sortAsc}</option>
+            <option value="budget-desc">{labels.sortDesc}</option>
           </select>
         </label>
       )}

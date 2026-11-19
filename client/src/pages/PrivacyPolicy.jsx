@@ -1,114 +1,55 @@
-import { site } from '../siteConfig'
-import { useSiteData } from '../SiteData'
+import { useContent } from '../SiteData'
+import { RichText } from '../content/text'
+
+const Mail = ({ to }) => <a href={`mailto:${to}`}>{to}</a>
 
 export default function PrivacyPolicy() {
-  const { settings } = useSiteData()
-  const contactEmail = settings.privacyEmail || settings.email
+  const { settings, c } = useContent('privacy')
+  const privacyEmail = settings.privacyEmail || settings.email
 
   return (
     <section className="section section--light">
       <div className="container">
-        <span className="eyebrow">Legal</span>
-        <h1 className="privacy-policy__title">Privacy Policy</h1>
+        <span className="eyebrow">{c.eyebrow}</span>
+        <h1 className="privacy-policy__title">{c.title}</h1>
         <p className="lede">
-          This explains what personal data RNK2 Properties Ltd collects when you contact us,
-          why, and what rights you have. Last updated {site.legal.policyUpdated}.
+          {c.intro} {c.lastUpdated}
         </p>
 
         <ol className="privacy-policy__clauses">
           <li>
-            <h2 className="section-label">01 / WHO WE ARE</h2>
+            <h2 className="section-label">{c.whoHeading}</h2>
             <p className="project-copy">
-              RNK2 Properties Ltd
+              {c.companyName}
               {settings.registrationNo && `, company registration no. ${settings.registrationNo}`}
-              {settings.address && `, of ${settings.address}`}, is the data controller for the
-              personal data described in this policy.
+              {settings.address && `, of ${settings.address}`}
+              {(settings.registrationNo || settings.address) && ','} {c.whoText}
               {settings.email && (
                 <>
-                  {' '}You can reach us at <a href={`mailto:${settings.email}`}>{settings.email}</a>.
+                  {' '}
+                  {c.contactPrefix} <Mail to={settings.email} />.
                 </>
               )}
             </p>
           </li>
 
-          <li>
-            <h2 className="section-label">02 / WHAT WE COLLECT</h2>
-            <p className="project-copy">
-              When you submit a quote request, we collect:
-            </p>
-            <ul className="privacy-policy__list">
-              <li>Your name, email address and phone number</li>
-              <li>Your postcode and the project type/details you submit in the quote form</li>
-              <li>Any message you choose to add</li>
-              <li>
-                Standard technical/security logs kept by our hosting provider (e.g. IP
-                address) — this site does not use cookies or analytics
-              </li>
-            </ul>
-          </li>
+          {c.sections.map((clause, i) => (
+            <li key={i}>
+              <h2 className="section-label">{clause.heading}</h2>
+              <RichText text={clause.body} paragraphClass="project-copy" listClass="privacy-policy__list" />
+            </li>
+          ))}
 
           <li>
-            <h2 className="section-label">03 / WHY WE PROCESS IT &amp; OUR LAWFUL BASIS</h2>
+            <h2 className="section-label">{c.contactHeading}</h2>
             <p className="project-copy">
-              We use your details to respond to your quote request, arrange a site visit, and
-              provide a written quote — this is necessary to take steps at your request before
-              entering into a contract with you. Where you&apos;ve given consent (see below), we
-              rely on that consent as our lawful basis.
-            </p>
-          </li>
-
-          <li>
-            <h2 className="section-label">04 / HOW LONG WE KEEP IT</h2>
-            <p className="project-copy">{site.legal.quoteLeadRetention}</p>
-          </li>
-
-          <li>
-            <h2 className="section-label">05 / WHO WE SHARE IT WITH</h2>
-            <p className="project-copy">
-              We don&apos;t sell your data. We share it only with the following processors, who act
-              on our instructions:
-            </p>
-            <ul className="privacy-policy__list">
-              {site.legal.dataSharedWith.map((d) => (
-                <li key={d.name}>
-                  {d.name} — {d.purpose}
-                </li>
-              ))}
-            </ul>
-          </li>
-
-          <li>
-            <h2 className="section-label">06 / YOUR RIGHTS</h2>
-            <p className="project-copy">
-              You have the right to access, correct, erase, or restrict the data we hold about
-              you, to object to our processing, to request a copy in a portable format, and to
-              withdraw your consent at any time. You also have the right to complain to the
-              Information Commissioner&apos;s Office (ICO) if you&apos;re unhappy with how
-              we&apos;ve handled your data.
-            </p>
-          </li>
-
-          <li>
-            <h2 className="section-label">07 / COOKIES</h2>
-            <p className="project-copy">
-              This site does not use analytics or advertising cookies. The only cookie it sets
-              is a strictly necessary sign-in cookie for our own staff when they use the
-              website&apos;s admin area; visitors are never given one. If that changes, this
-              policy will be updated first.
-            </p>
-          </li>
-
-          <li>
-            <h2 className="section-label">08 / CONTACT US &amp; COMPLAINTS</h2>
-            <p className="project-copy">
-              {contactEmail && (
+              {privacyEmail && (
                 <>
-                  For data requests, contact <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.{' '}
+                  {c.dataRequestPrefix} <Mail to={privacyEmail} />.{' '}
                 </>
               )}
-              {settings.icoRegistrationNo &&
-                `Our ICO registration number is ${settings.icoRegistrationNo}. `}
-              You can also complain to the Information Commissioner&apos;s Office at ico.org.uk.
+              {settings.icoRegistrationNo && `${c.icoPrefix} ${settings.icoRegistrationNo}. `}
+              {c.complaintText}
             </p>
           </li>
         </ol>

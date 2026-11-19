@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { useSiteData } from '../SiteData'
+import { useContent } from '../SiteData'
 import Reveal from '../components/Reveal'
 import QuoteCTA from '../components/QuoteCTA'
 import ProjectGallery from '../components/ProjectGallery'
@@ -10,27 +10,29 @@ import { IconArrow } from '../components/icons'
 import { hidePhotoOnError } from '../utils/imageFallback'
 import NotFound from './NotFound'
 
+// Project field -> its label in the CMS copy (Site content → Project pages).
 const FACTS = [
-  { key: 'type', label: 'Project type' },
-  { key: 'location', label: 'Location' },
-  { key: 'duration', label: 'Duration' },
-  { key: 'costBand', label: 'Cost band' }
+  { key: 'type', label: 'factType' },
+  { key: 'location', label: 'factLocation' },
+  { key: 'duration', label: 'factDuration' },
+  { key: 'costBand', label: 'factCost' }
 ]
 
 const DEFAULT_TITLE = document.title
 
 export default function ProjectDetail() {
   const { slug } = useParams()
-  const { status, projects } = useSiteData()
+  const { status, projects, c, content } = useContent('project')
+  const titleSuffix = content.seo.projectTitleSuffix
   const projectIndex = projects.findIndex((p) => p.slug === slug)
   const project = projects[projectIndex]
 
   useEffect(() => {
-    if (project) document.title = `${project.title} — RNK2 Properties Ltd`
+    if (project) document.title = titleSuffix ? `${project.title} ${titleSuffix}` : project.title
     return () => {
       document.title = DEFAULT_TITLE
     }
-  }, [project])
+  }, [project, titleSuffix])
 
   if (status === 'loading') {
     return <section className="hero project-hero project-hero--loading" aria-busy="true" />
@@ -51,7 +53,7 @@ export default function ProjectDetail() {
           <div className="project-hero__meta">
             <Link to="/#work" className="project-hero__back mono">
               <IconArrow className="project-hero__back-icon" />
-              Back to work
+              {c.back}
             </Link>
             <span className="project-hero__tag mono">
               {`FIG. ${String(projectIndex + 1).padStart(2, '0')}`}
@@ -72,19 +74,19 @@ export default function ProjectDetail() {
             )}
 
             <aside className="project-facts">
-              <span className="project-facts__label mono">Project facts</span>
+              <span className="project-facts__label mono">{c.factsHeading}</span>
               {facts.length > 0 && (
                 <dl className="project-facts__list">
                   {facts.map((fact) => (
                     <div className="project-facts__row" key={fact.key}>
-                      <dt>{fact.label}</dt>
+                      <dt>{c[fact.label]}</dt>
                       <dd>{project[fact.key]}</dd>
                     </div>
                   ))}
                 </dl>
               )}
               <a href="#quote" className="btn btn--primary">
-                Start a similar project
+                {c.cta}
                 <IconArrow className="btn__arrow" />
               </a>
             </aside>
@@ -93,28 +95,28 @@ export default function ProjectDetail() {
           <div className="project-content">
             {project.brief && (
               <>
-                <h2 className="section-label">THE BRIEF</h2>
+                <h2 className="section-label">{c.briefHeading}</h2>
                 <p className="project-copy">{project.brief}</p>
               </>
             )}
 
             {project.approach && (
               <>
-                <h2 className="section-label">THE APPROACH</h2>
+                <h2 className="section-label">{c.approachHeading}</h2>
                 <p className="project-copy">{project.approach}</p>
               </>
             )}
 
             {project.result && (
               <>
-                <h2 className="section-label">THE RESULT</h2>
+                <h2 className="section-label">{c.resultHeading}</h2>
                 <p className="project-result mono">{project.result}</p>
               </>
             )}
 
             {project.timeline.length > 0 && (
               <>
-                <h2 className="section-label">THE TIMELINE</h2>
+                <h2 className="section-label">{c.timelineHeading}</h2>
                 <ProjectTimeline steps={project.timeline} />
               </>
             )}
@@ -125,12 +127,14 @@ export default function ProjectDetail() {
       {project.beforeImage && project.image && (
         <section className="section section--mist">
           <div className="container">
-            <span className="section-label">THE TRANSFORMATION</span>
-            <h2>Before &amp; after</h2>
+            {c.beforeAfterLabel && <span className="section-label">{c.beforeAfterLabel}</span>}
+            {c.beforeAfterHeading && <h2>{c.beforeAfterHeading}</h2>}
             <BeforeAfterSlider
               beforeImage={project.beforeImage}
               afterImage={{ src: project.image, alt: project.title }}
               title={project.title}
+              beforeTag={c.beforeTag}
+              afterTag={c.afterTag}
             />
           </div>
         </section>
@@ -139,8 +143,8 @@ export default function ProjectDetail() {
       {otherProjects.length > 0 && (
         <section className="section section--light">
           <div className="container">
-            <span className="section-label">SEC.08 / MORE PROJECTS</span>
-            <h2>Other work</h2>
+            {c.moreLabel && <span className="section-label">{c.moreLabel}</span>}
+            {c.moreHeading && <h2>{c.moreHeading}</h2>}
 
             <div className="project-more-grid">
               {otherProjects.map((p) => (

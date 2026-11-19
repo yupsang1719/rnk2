@@ -1,21 +1,28 @@
 import { Router } from 'express'
 import Project, { toPublicProject } from '../models/Project.js'
 import { getSettings, toPublicSettings } from '../models/Settings.js'
+import { clean, getContentDoc, getPublishedContent } from '../models/Content.js'
+import { userFromRequest } from '../middleware/auth.js'
 
 const router = Router()
 
-// Everything the public site needs in one request: company settings plus
-// published projects only. Drafts are never sent to the public site.
-router.get('/', async (_req, res) => {
+// Everything the public site needs in one request: company settings, site
+// copy and published projects only. Drafts are never sent to the public site.
+// A signed-in admin can ask for the draft copy with ?preview=1.
+router.get('/', async (req, res) => {
   try {
-    const [settings, projects] = await Promise.all([
+    const preview = req.query.preview === '1' && (await userFromRequest(req))
+    const [settings, projects, content] = await Promise.all([
       getSettings(),
-      Project.find({ published: true }).sort({ sortOrder: 1, createdAt: -1 })
+      Project.find({ published: true }).sort({ sortOrder: 1, createdAt: -1 }),
+      preview ? getContentDoc().then((doc) => clean(doc.draft).content) : getPublishedContent()
     ])
-    res.set('Cache-Control', 'no-cache')
+    res.set('Cache-Control', preview ? 'no-store' : 'no-cache')
     res.json({
       ok: true,
+      preview: Boolean(preview),
       settings: toPublicSettings(settings),
+      content,
       projects: projects.map(toPublicProject)
     })
   } catch (err) {

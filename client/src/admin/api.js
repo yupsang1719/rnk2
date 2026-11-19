@@ -2,9 +2,10 @@
 // X-RNK2-Admin header, which the server requires on writes (CSRF guard).
 
 export class ApiError extends Error {
-  constructor(message, status) {
+  constructor(message, status, data = {}) {
     super(message)
     this.status = status
+    this.data = data
   }
 }
 
@@ -38,7 +39,7 @@ export async function api(path, { method = 'GET', body, form } = {}) {
 
   if (res.status === 401 && !path.startsWith('/auth/login')) onUnauthorized()
   if (!res.ok || data.ok === false) {
-    throw new ApiError(data.error || 'Something went wrong. Please try again.', res.status)
+    throw new ApiError(data.error || 'Something went wrong. Please try again.', res.status, data)
   }
   return data
 }

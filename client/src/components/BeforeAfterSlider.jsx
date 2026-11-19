@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { hidePhotoOnError } from '../utils/imageFallback'
 
-export default function BeforeAfterSlider({ beforeImage, afterImage, title }) {
+export default function BeforeAfterSlider({ beforeImage, afterImage, title, beforeTag = 'Before', afterTag = 'After' }) {
   const [value, setValue] = useState(50)
 
   return (
@@ -24,8 +24,8 @@ export default function BeforeAfterSlider({ beforeImage, afterImage, title }) {
 
         <div className="ba-slider__divider" aria-hidden="true" />
 
-        <span className="ba-slider__tag ba-slider__tag--before mono">Before</span>
-        <span className="ba-slider__tag ba-slider__tag--after mono">After</span>
+        {beforeTag && <span className="ba-slider__tag ba-slider__tag--before mono">{beforeTag}</span>}
+        {afterTag && <span className="ba-slider__tag ba-slider__tag--after mono">{afterTag}</span>}
 
         <input
           type="range"

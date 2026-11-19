@@ -1,33 +1,27 @@
 import { useEffect, useRef } from 'react'
 import { site } from '../siteConfig'
-import { useSiteData, yearsSince } from '../SiteData'
+import { useContent, yearsSince } from '../SiteData'
 import StatCounter from './StatCounter'
 import { IconArrow, IconCheck } from './icons'
 import { hidePhotoOnError } from '../utils/imageFallback'
 
-function buildStats(s) {
+function buildStats(s, c) {
   return [
-    { value: yearsSince(s.establishedYear), label: 'Years established' },
-    { value: s.projectsCompleted, label: 'Projects completed' },
-    { value: s.guaranteeYears ? `${s.guaranteeYears} YR` : '', label: 'Structural guarantee' },
-    { value: s.onTimePercent, label: 'Delivered on time' }
+    { value: yearsSince(s.establishedYear), label: c.statYearsLabel },
+    { value: s.projectsCompleted, label: c.statProjectsLabel },
+    { value: s.guaranteeYears ? `${s.guaranteeYears} ${c.statGuaranteeUnit}` : '', label: c.statGuaranteeLabel },
+    { value: s.onTimePercent, label: c.statOnTimeLabel }
   ].filter((stat) => stat.value)
 }
 
-const QUOTE_POINTS = [
-  'No-obligation site visit',
-  'Fixed-price written quote',
-  'Answer within one working day'
-]
-
 export default function Hero() {
   const heroRef = useRef(null)
-  const { settings, projects } = useSiteData()
-  const stats = buildStats(settings)
+  const { settings, projects, c } = useContent('hero')
+  const stats = buildStats(settings, c)
   const eyebrow = [
-    'RESIDENTIAL BUILDER',
-    settings.region && settings.region.toUpperCase(),
-    settings.establishedYear && `EST. ${settings.establishedYear}`
+    c.eyebrow,
+    settings.region,
+    settings.establishedYear && `${c.establishedPrefix} ${settings.establishedYear}`
   ]
     .filter(Boolean)
     .join(' — ')
@@ -54,7 +48,7 @@ export default function Hero() {
 
   return (
     <section className="hero" id="top" ref={heroRef}>
-      <img className="hero__photo" src={settings.heroImage || site.defaultHeroImage} alt="" onError={hidePhotoOnError} />
+      <img className="hero__photo" src={c.image?.url || site.defaultHeroImage} alt="" onError={hidePhotoOnError} />
       <div className="hero__scrim" aria-hidden="true" />
       <div className="hero__tick" aria-hidden="true" />
 
@@ -65,24 +59,20 @@ export default function Hero() {
               <span className="hero__frame-tag mono">FIG. 01</span>
               <p className="eyebrow hero__eyebrow">{eyebrow}</p>
               <h1 className="hero__title">
-                We design it <span className="highlight">AND</span> build it.
+                {c.titleBefore} <span className="highlight">{c.titleHighlight}</span> {c.titleAfter}
               </h1>
             </div>
 
-            <p className="lede hero__lede">
-              One team carries your project from architectural drawings through planning and
-              building regulations to a finished, guaranteed build — so nothing gets lost in
-              translation between a designer and a site team.
-            </p>
+            <p className="lede hero__lede">{c.lede}</p>
 
             <div className="hero__actions">
               <a href="#quote" className="btn btn--primary">
-                Request a quote
+                {c.primaryCta}
                 <IconArrow className="btn__arrow" />
               </a>
               {projects.length > 0 && (
                 <a href="#work" className="btn btn--ghost">
-                  See our work
+                  {c.secondaryCta}
                   <IconArrow className="btn__arrow" />
                 </a>
               )}
@@ -90,18 +80,18 @@ export default function Hero() {
           </div>
 
           <aside className="hero__quote-card">
-            <span className="hero__quote-card-eyebrow mono">Get a quote</span>
-            <p className="hero__quote-card-title">Free site visit. Fixed-price quote.</p>
+            <span className="hero__quote-card-eyebrow mono">{c.cardEyebrow}</span>
+            <p className="hero__quote-card-title">{c.cardTitle}</p>
             <ul className="hero__quote-card-list">
-              {QUOTE_POINTS.map((point) => (
-                <li key={point}>
+              {c.cardPoints.map((point, i) => (
+                <li key={i}>
                   <IconCheck aria-hidden="true" />
-                  <span>{point}</span>
+                  <span>{point.text}</span>
                 </li>
               ))}
             </ul>
             <a href="#quote" className="btn btn--primary">
-              Start your project
+              {c.cardCta}
               <IconArrow className="btn__arrow" />
             </a>
           </aside>
@@ -109,8 +99,8 @@ export default function Hero() {
 
         {stats.length > 0 && (
           <div className="stat-strip">
-            {stats.map((stat) => (
-              <div className="stat-strip__item" key={stat.label}>
+            {stats.map((stat, i) => (
+              <div className="stat-strip__item" key={i}>
                 <StatCounter className="stat-strip__value" value={stat.value} />
                 <span className="stat-strip__label">{stat.label}</span>
               </div>

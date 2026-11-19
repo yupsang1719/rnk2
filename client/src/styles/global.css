@@ -1583,6 +1583,7 @@ h3 {
 /* ==========================================================================
    TESTIMONIAL
    ========================================================================== */
+.testimonials { display: grid; gap: 56px; }
 .testimonial {
   text-align: left;
   max-width: 760px;
@@ -1832,6 +1833,7 @@ h3 {
   font-size: clamp(2rem, 4.4vw, 3.4rem);
   margin-bottom: 20px;
 }
+.privacy-policy__clauses .project-copy + .project-copy { margin-top: 1em; }
 .privacy-policy__clauses {
   margin: 40px 0 0;
   padding: 0;
@@ -1933,3 +1935,37 @@ h3 {
 
 /* Placeholder height while project content loads, so the footer doesn't jump. */
 .project-hero--loading { min-height: 60vh; }
+
+/* ==========================================================================
+   CMS PREVIEW BAR (only in a tab opened with "Preview" from the admin)
+   ========================================================================== */
+.preview-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: min(720px, calc(100% - 32px));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  background: #b45309;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 12px 32px rgba(8, 14, 28, 0.35);
+}
+.preview-bar--warn { background: var(--navy); }
+.preview-bar button {
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: transparent;
+  color: #fff;
+  padding: 6px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.preview-bar button:hover { background: rgba(255, 255, 255, 0.12); }
